@@ -1,11 +1,43 @@
-import { Button, Card, Group, Stack, Text, Title, Radio } from "@mantine/core";
+import {
+  Button,
+  Card,
+  Group,
+  Stack,
+  Text,
+  Title,
+  Radio,
+  Tooltip,
+  Popover,
+  HoverCard,
+} from "@mantine/core";
 import { useState } from "react";
+
+const COMPS_UNDER_30 = {
+  25: {
+    witches: 2,
+    archers: 1,
+  },
+  20: {
+    witches: 1,
+    valkyries: 1,
+  },
+  15: {
+    valkyries: 1,
+    wizards: 1,
+    archers: 3,
+  },
+  10: {
+    valkyries: 1,
+    archers: 2,
+  },
+};
 
 const COMPS = [
   {
     value: "lava",
     label: "lava hound + headhunter",
     troops: {
+      ...COMPS_UNDER_30,
       30: {
         lavas: 1,
       },
@@ -34,6 +66,7 @@ const COMPS = [
     value: "ig",
     label: "ice golem stall",
     troops: {
+      ...COMPS_UNDER_30,
       30: {
         icegolems: 2,
       },
@@ -54,7 +87,36 @@ const COMPS = [
         archers: 5,
       },
     },
-    minSize: 15,
+  },
+  {
+    value: "sm",
+    label: "super minion + headhunter",
+    troops: {
+      ...COMPS_UNDER_30,
+      30: {
+        superminions: 2,
+        headhunters: 1,
+      },
+      35: {
+        superminions: 2,
+        headhunters: 1,
+        archers: 5,
+      },
+      40: {
+        superminions: 3,
+        archers: 4,
+      },
+      45: {
+        superminions: 3,
+        headhunters: 1,
+        archers: 3,
+      },
+      50: {
+        superminions: 3,
+        headhunters: 2,
+        archers: 2,
+      },
+    },
   },
 ];
 
@@ -63,6 +125,12 @@ const DEFAULT_TROOP_AMTS = {
   headhunters: 0,
   lavas: 0,
   icegolems: 0,
+  superminions: 0,
+  rocketloons: 0,
+  witches: 0,
+  valks: 0,
+  wizards: 0,
+  babydrags: 0,
 };
 
 type TroopAmtsObj = {
@@ -204,9 +272,22 @@ export default function Website() {
           {troopAmts.icegolems !== 0 && (
             <Text>ice golems: {troopAmts.icegolems}</Text>
           )}
+          {troopAmts.superminions !== 0 && (
+            <Text>super minions: {troopAmts.superminions}</Text>
+          )}
+          {troopAmts.witches !== 0 && <Text>witches: {troopAmts.witches}</Text>}
+
+          {troopAmts.babydrags !== 0 && (
+            <Text>baby dragons: {troopAmts.babydrags}</Text>
+          )}
+          {troopAmts.rocketloons !== 0 && (
+            <Text>rocket loons: {troopAmts.rocketloons}</Text>
+          )}
+          {troopAmts.valks !== 0 && <Text>valkyries: {troopAmts.valks}</Text>}
           {troopAmts.headhunters !== 0 && (
             <Text>headhunters: {troopAmts.headhunters}</Text>
           )}
+          {troopAmts.wizards !== 0 && <Text>wizards: {troopAmts.wizards}</Text>}
           {troopAmts.archers !== 0 && <Text>archers: {troopAmts.archers}</Text>}
         </Stack>
       </Card>
@@ -215,28 +296,46 @@ export default function Website() {
 
   function CompositionCard() {
     return (
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Card shadow="sm" padding="lg" radius="md" withBorder ta="center">
         <Card.Section withBorder p="md" mb="md">
           <Title order={3} ta="center">
             select composition
           </Title>
         </Card.Section>
+        <Text c="grey" size="sm">
+          {"(more coming soon!)"}
+        </Text>
         <Radio.Group
           name="comp"
           value={selectedComp}
+          label="for capacities 30 and above: "
           p="md"
+          withAsterisk
           onChange={(event) => setSelectedComp(event)}
         >
-          {COMPS.map((comp) => (
-            <Radio
-              key={comp.value}
-              value={comp.value}
-              label={comp.label}
-              mb="md"
-            />
-          ))}
+          <Stack mt="md">
+            {COMPS.map((comp) => (
+              <Radio key={comp.value} value={comp.value} label={comp.label} />
+            ))}
+          </Stack>
         </Radio.Group>
-        <Text c="grey" size="sm" ta="center">more coming soon!</Text>
+        <HoverCard width={300} position="right" withArrow shadow="md">
+          <HoverCard.Target>
+            <Button size="compact" variant="subtle">
+              {"(?) "} what about cc's under 30?
+            </Button>
+          </HoverCard.Target>
+          <HoverCard.Dropdown ta="center">
+            <Text size="sm">
+              these options aren't optimal for capacities under 30, so we've
+              chosen some default comps for these sizes as follows:{" "}
+            </Text>
+            <Text size="xs">25: 2 witches, 1 archer</Text>
+            <Text size="xs">20: 1 witch, 1 valkyrie</Text>
+            <Text size="xs">15: 1 valkyrie, 1 wizard, 3 archers</Text>
+            <Text size="xs">10: 1 valkyrie, 2 archers</Text>
+          </HoverCard.Dropdown>
+        </HoverCard>
       </Card>
     );
   }
