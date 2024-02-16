@@ -236,6 +236,7 @@ export default function Website() {
             />
           ))}
         </Radio.Group>
+        <Text c="grey" size="sm" ta="center">more coming soon!</Text>
       </Card>
     );
   }
@@ -243,7 +244,12 @@ export default function Website() {
   return (
     <Stack align="center" m="xl">
       <Title order={1}>⚔️ coc war cc calculator ⚔️</Title>
-      <Text>{"made by grader :)"} <Text span c="grey">{"#LLCLVJR8"}</Text></Text>
+      <Text>
+        {"made by grader :)"}{" "}
+        <Text span c="grey">
+          {"#LLCLVJR8"}
+        </Text>
+      </Text>
       <Group>
         <SizesCard />
         <Stack w="300px">
