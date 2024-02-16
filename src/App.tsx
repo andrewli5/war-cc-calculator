@@ -1,5 +1,5 @@
 import "@mantine/core/styles.css";
-import { Center, MantineProvider } from "@mantine/core";
+import { MantineProvider } from "@mantine/core";
 import Website from "./Website";
 import { theme } from "./theme";
 
