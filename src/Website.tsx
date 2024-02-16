@@ -1,5 +1,5 @@
 import { Button, Card, Group, Stack, Text, Title, Radio } from "@mantine/core";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const COMPS = [
   {
@@ -88,7 +88,7 @@ export default function Website() {
   });
   const [totalSelected, setTotalSelected] = useState(0);
   const [totalSize, setTotalSize] = useState(0);
-  const [selectedComp, setSelectedComp] = useState<string>("lava");
+  const [selectedComp, setSelectedComp] = useState("lava");
   const [troopAmts, setTroopAmts] = useState({ ...DEFAULT_TROOP_AMTS });
   const [resultsVisible, setResultsVisible] = useState(false);
 
@@ -243,6 +243,7 @@ export default function Website() {
   return (
     <Stack align="center" m="xl">
       <Title order={1}>⚔️ coc war cc calculator ⚔️</Title>
+      <Text>{"made by grader :)"} <Text span c="grey">{"#LLCLVJR8"}</Text></Text>
       <Group>
         <SizesCard />
         <Stack w="300px">
