@@ -17,15 +17,15 @@ const COMPS_UNDER_30 = {
   },
   20: {
     witches: 1,
-    valkyries: 1,
+    valks: 1,
   },
   15: {
-    valkyries: 1,
+    valks: 1,
     wizards: 1,
     archers: 3,
   },
   10: {
-    valkyries: 1,
+    valks: 1,
     archers: 2,
   },
 };
