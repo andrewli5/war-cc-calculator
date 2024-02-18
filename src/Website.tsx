@@ -6,8 +6,6 @@ import {
   Text,
   Title,
   Radio,
-  Tooltip,
-  Popover,
   HoverCard,
 } from "@mantine/core";
 import { useState } from "react";
