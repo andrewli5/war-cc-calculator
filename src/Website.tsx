@@ -10,7 +10,7 @@ import {
 } from "@mantine/core";
 import { useState } from "react";
 
-const COMPS_UNDER_30 = {
+const DEFAULT_UNDER_30_COMPS = {
   25: {
     witches: 2,
     archers: 1,
@@ -30,12 +30,53 @@ const COMPS_UNDER_30 = {
   },
 };
 
-const COMPS = [
+const COMPS_UNDER_30 = [
+  {
+    value: "drag",
+    label: "dragon + balloon",
+    troops: {
+      10: {
+        balloons: 2,
+      },
+      15: {
+        balloons: 3,
+      },
+      20: {
+        drags: 1,
+      },
+      25: {
+        drags: 1,
+        balloons: 1,
+      },
+      30: {
+        drags: 1,
+        balloons: 2,
+      },
+      35: {
+        drags: 1,
+        balloons: 3,
+      },
+      40: {
+        drags: 2,
+      },
+      45: {
+        drags: 2,
+        balloons: 1,
+      },
+      50: {
+        drags: 2,
+        balloons: 2,
+      },
+    },
+  },
+];
+
+const COMPS_OVER_30 = [
   {
     value: "lava",
     label: "lava hound + headhunter",
     troops: {
-      ...COMPS_UNDER_30,
+      ...DEFAULT_UNDER_30_COMPS,
       30: {
         lavas: 1,
       },
@@ -64,7 +105,7 @@ const COMPS = [
     value: "ig",
     label: "ice golem stall",
     troops: {
-      ...COMPS_UNDER_30,
+      ...DEFAULT_UNDER_30_COMPS,
       30: {
         icegolems: 2,
       },
@@ -90,7 +131,7 @@ const COMPS = [
     value: "sm",
     label: "super minion + headhunter",
     troops: {
-      ...COMPS_UNDER_30,
+      ...DEFAULT_UNDER_30_COMPS,
       30: {
         superminions: 2,
         headhunters: 1,
@@ -129,14 +170,32 @@ const DEFAULT_TROOP_AMTS = {
   valks: 0,
   wizards: 0,
   babydrags: 0,
+  drags: 0,
+  balloons: 0,
+  superdrags: 0,
+  superlavas: 0,
+  edrags: 0,
 };
 
-type TroopAmtsObj = {
-  archers?: number;
-  headhunters?: number;
-  lavas?: number;
-  icegolems?: number;
-};
+const TROOP_NAMES = [
+  { varName: "superdrags", displayName: "super dragons" },
+  { varName: "superlavas", displayName: "ice hounds" },
+  { varName: "edrags", displayName: "electro dragons" },
+  { varName: "lavas", displayName: "lava hounds" },
+  { varName: "drags", displayName: "dragons" },
+  { varName: "icegolems", displayName: "ice golems" },
+  { varName: "superminions", displayName: "super minions" },
+  { varName: "witches", displayName: "witches" },
+  { varName: "babydrags", displayName: "baby dragons" },
+  { varName: "rocketloons", displayName: "rocket loons" },
+  { varName: "valks", displayName: "valkyries" },
+  { varName: "headhunters", displayName: "headhunters" },
+  { varName: "balloons", displayName: "balloons" },
+  { varName: "wizards", displayName: "wizards" },
+  { varName: "archers", displayName: "archers" },
+];
+
+type TroopAmtsObj = typeof DEFAULT_TROOP_AMTS;
 
 export default function Website() {
   const [clanCastleCounts, setClanCastleCounts] = useState<{
@@ -160,7 +219,9 @@ export default function Website() {
 
   const calculateTroops = () => {
     const newTroopAmts = { ...DEFAULT_TROOP_AMTS };
-    const comp = COMPS.find((comp) => comp.value === selectedComp);
+    const comp =
+      COMPS_OVER_30.find((comp) => comp.value === selectedComp) ||
+      COMPS_UNDER_30.find((comp) => comp.value === selectedComp);
     for (const size in clanCastleCounts) {
       const clanCastleCount = clanCastleCounts[size];
       for (let i = clanCastleCount; i > 0; i--) {
@@ -259,34 +320,23 @@ export default function Website() {
 
   function ResultsCard() {
     return (
-      <Card shadow="sm" padding="lg" radius="md" withBorder>
+      <Card shadow="sm" padding="lg" radius="md" withBorder w={200}>
         <Card.Section withBorder p="md" mb="md">
           <Title order={3} ta="center">
             results
           </Title>
         </Card.Section>
-        <Stack align="center">
-          {troopAmts.lavas !== 0 && <Text>lava hounds: {troopAmts.lavas}</Text>}
-          {troopAmts.icegolems !== 0 && (
-            <Text>ice golems: {troopAmts.icegolems}</Text>
-          )}
-          {troopAmts.superminions !== 0 && (
-            <Text>super minions: {troopAmts.superminions}</Text>
-          )}
-          {troopAmts.witches !== 0 && <Text>witches: {troopAmts.witches}</Text>}
-
-          {troopAmts.babydrags !== 0 && (
-            <Text>baby dragons: {troopAmts.babydrags}</Text>
-          )}
-          {troopAmts.rocketloons !== 0 && (
-            <Text>rocket loons: {troopAmts.rocketloons}</Text>
-          )}
-          {troopAmts.valks !== 0 && <Text>valkyries: {troopAmts.valks}</Text>}
-          {troopAmts.headhunters !== 0 && (
-            <Text>headhunters: {troopAmts.headhunters}</Text>
-          )}
-          {troopAmts.wizards !== 0 && <Text>wizards: {troopAmts.wizards}</Text>}
-          {troopAmts.archers !== 0 && <Text>archers: {troopAmts.archers}</Text>}
+        <Stack align="center" gap="xs">
+          {TROOP_NAMES.map((troop) => {
+            if (troopAmts[troop.varName as keyof TroopAmtsObj] !== 0) {
+              return (
+                <Text key={troop.varName}>
+                  {troop.displayName}:{" "}
+                  {troopAmts[troop.varName as keyof TroopAmtsObj]}
+                </Text>
+              );
+            }
+          })}
         </Stack>
       </Card>
     );
@@ -300,40 +350,63 @@ export default function Website() {
             select composition
           </Title>
         </Card.Section>
-        <Text c="grey" size="sm">
+        <Text c="grey" size="sm" mb="md">
           {"(more coming soon!)"}
         </Text>
-        <Radio.Group
-          name="comp"
-          value={selectedComp}
-          label="for capacities 30 and above: "
-          p="md"
-          withAsterisk
-          onChange={(event) => setSelectedComp(event)}
+        <Card shadow="sm" radius="md" padding="xs" withBorder ta="center">
+          <Radio.Group
+            name="comp"
+            value={selectedComp}
+            label={<Text fw={600}> for capacities 30+ </Text>}
+            p="md"
+            onChange={(event) => setSelectedComp(event)}
+          >
+            <Stack mt="md" mb="md">
+              {COMPS_OVER_30.map((comp) => (
+                <Radio key={comp.value} value={comp.value} label={comp.label} />
+              ))}
+            </Stack>
+            <HoverCard width={300} position="right" withArrow shadow="md">
+              <HoverCard.Target>
+                <Button size="compact-xs" variant="subtle">
+                  {"what about cc's 25 and below?"}
+                </Button>
+              </HoverCard.Target>
+              <HoverCard.Dropdown ta="center">
+                <Text size="sm" fw={620} mb="xs">
+                  these options aren't optimal for cc's 25 and below. i've
+                  chosen some defaults:
+                </Text>
+                <Text size="xs">25: 2 witches, 1 archer</Text>
+                <Text size="xs">20: 1 witch, 1 valkyrie</Text>
+                <Text size="xs">15: 1 valkyrie, 1 wizard, 3 archers</Text>
+                <Text size="xs">10: 1 valkyrie, 2 archers</Text>
+              </HoverCard.Dropdown>
+            </HoverCard>
+          </Radio.Group>
+        </Card>
+        <Card
+          shadow="sm"
+          radius="md"
+          padding="xs"
+          withBorder
+          ta="center"
+          mt="md"
         >
-          <Stack mt="md">
-            {COMPS.map((comp) => (
-              <Radio key={comp.value} value={comp.value} label={comp.label} />
-            ))}
-          </Stack>
-        </Radio.Group>
-        <HoverCard width={300} position="right" withArrow shadow="md">
-          <HoverCard.Target>
-            <Button size="compact" variant="subtle">
-              {"(?) "} what about cc's under 30?
-            </Button>
-          </HoverCard.Target>
-          <HoverCard.Dropdown ta="center">
-            <Text size="sm">
-              these options aren't optimal for capacities under 30, so we've
-              chosen some default comps for these sizes as follows:{" "}
-            </Text>
-            <Text size="xs">25: 2 witches, 1 archer</Text>
-            <Text size="xs">20: 1 witch, 1 valkyrie</Text>
-            <Text size="xs">15: 1 valkyrie, 1 wizard, 3 archers</Text>
-            <Text size="xs">10: 1 valkyrie, 2 archers</Text>
-          </HoverCard.Dropdown>
-        </HoverCard>
+          <Radio.Group
+            name="comp"
+            value={selectedComp}
+            label={<Text fw={600}> for all capacities</Text>}
+            p="md"
+            onChange={(event) => setSelectedComp(event)}
+          >
+            <Stack mt="md">
+              {COMPS_UNDER_30.map((comp) => (
+                <Radio key={comp.value} value={comp.value} label={comp.label} />
+              ))}
+            </Stack>
+          </Radio.Group>
+        </Card>
       </Card>
     );
   }
@@ -352,8 +425,8 @@ export default function Website() {
         <Stack w="300px">
           <CompositionCard />
           <SubmitCard />
-          {resultsVisible && <ResultsCard />}
         </Stack>
+        {resultsVisible && <ResultsCard />}
       </Group>
     </Stack>
   );
