@@ -348,7 +348,7 @@ const DEFAULT_UNDER_30_COMPS = {
 const COMPS_UNDER_30 = [
   {
     value: "archer",
-    label: MetaLabel("mass archers"),
+    label: "mass archers",
     troops: {
       10: {
         archers: 10,
@@ -376,6 +376,47 @@ const COMPS_UNDER_30 = [
       },
       50: {
         archers: 50,
+      },
+    },
+  },
+  {
+    value: "witch",
+    label: "mass witches",
+    troops: {
+      ...DEFAULT_UNDER_30_COMPS,
+      15: {
+        witches: 1,
+        archers: 3
+      },
+      20: {
+        witches: 1,
+        valks: 1,
+      },
+      25: {
+        witches: 2,
+        archers: 1
+      },
+      30: {
+        witches: 2,
+        archers: 6
+      },
+      35: {
+        witches: 2,
+        headhunters: 1,
+        archers: 5
+      },
+      40: {
+        witches: 3,
+        archers: 4
+      },
+      45: {
+        witches: 3,
+        headhunters: 1,
+        archers: 3
+      },
+      50: {
+        witches: 4,
+        archers: 2
       },
     },
   },
