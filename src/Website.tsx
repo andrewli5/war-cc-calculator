@@ -10,8 +10,9 @@ import {
   Center,
   Divider,
   Badge,
+  Modal,
 } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
+import { useMediaQuery, useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
 import { em } from "@mantine/core";
 
@@ -29,6 +30,10 @@ export default function Website() {
     "15": 0,
     "10": 0,
   });
+  const [distribution, setDistribution] = useState<
+    Array<{ size: number; troops: TroopAmtsObj }>
+  >([]);
+  const [opened, { open, close }] = useDisclosure(false);
   const [totalSelected, setTotalSelected] = useState(0);
   const [totalSize, setTotalSize] = useState(0);
   const [selectedComp, setSelectedComp] = useState("lava");
@@ -38,6 +43,7 @@ export default function Website() {
 
   const calculateTroops = () => {
     const newTroopAmts = { ...DEFAULT_TROOP_AMTS };
+    const newDistribution = [] as Array<{ size: number; troops: TroopAmtsObj }>;
     const comp =
       COMPS_OVER_30.find((comp) => comp.value === selectedComp) ||
       COMPS_UNDER_30.find((comp) => comp.value === selectedComp);
@@ -48,6 +54,11 @@ export default function Website() {
           const troopAmtsObj = comp.troops[
             size as unknown as keyof typeof comp.troops
           ] as TroopAmtsObj;
+          newDistribution.push({
+            size: size as unknown as number,
+            troops: troopAmtsObj,
+          });
+
           for (const troopType in troopAmtsObj) {
             newTroopAmts[troopType as keyof TroopAmtsObj] +=
               troopAmtsObj[troopType as keyof TroopAmtsObj]!;
@@ -56,6 +67,7 @@ export default function Website() {
       }
     }
     setTroopAmts(newTroopAmts);
+    setDistribution(newDistribution);
   };
 
   const handleSubmitClick = () => {
@@ -165,9 +177,56 @@ export default function Website() {
                 );
               }
             })}
+            <Button
+              variant="gradient"
+              mt="sm"
+              size="lg"
+              onClick={() => {
+                open();
+              }}
+            >
+              view cc distribution
+            </Button>
           </Stack>
         </Center>
       </Card>
+    );
+  }
+
+  function troopAmtsObjToString(troops: TroopAmtsObj) {
+    let str = "";
+    for (const troop in troops) {
+      const amt = troops[troop as keyof TroopAmtsObj];
+      if (amt !== 0) {
+        if (amt === 1) {
+          str += `${troops[troop as keyof TroopAmtsObj]} ${troop.slice(0, -1)}, `;
+        } else {
+          str += `${troops[troop as keyof TroopAmtsObj]} ${troop}, `;
+        }
+      }
+    }
+    return str.slice(0, -2);
+  }
+
+  function DistributionModal() {
+    return (
+      <Modal opened={opened} onClose={close} title="cc distribution" size="sm">
+        <Stack gap="md" align="center">
+          <Text size="sm" ta="center" fw={640}>
+            {`total capacity: ${totalSize}`}
+          </Text>
+          <Card shadow="sm" padding="md" radius="md" withBorder mb="sm">
+            {distribution.sort((a, b) => b.size - a.size).map((cc) => {
+              return (
+                <Text size="sm" ta="left">
+                  <Text fw={640} span>{`${cc.size}: `}</Text>
+                  {`${troopAmtsObjToString(cc.troops)}`}
+                </Text>
+              );
+            })}
+          </Card>
+        </Stack>
+      </Modal>
     );
   }
 
@@ -209,6 +268,7 @@ export default function Website() {
           {resultsVisible && <ResultsCard />}
         </Stack>
       )}
+      <DistributionModal />
     </>
   );
 }
@@ -240,7 +300,12 @@ function CompositionCard({
               for capacities 30+
               <HoverCard width={300} withArrow shadow="md">
                 <HoverCard.Target>
-                  <Button size="compact-xs" variant="transparent" ml={2} mt={-3}>
+                  <Button
+                    size="compact-xs"
+                    variant="transparent"
+                    ml={2}
+                    mt={-3}
+                  >
                     ?
                   </Button>
                 </HoverCard.Target>
@@ -283,7 +348,12 @@ function CompositionCard({
               for all capacities
               <HoverCard width={300} withArrow shadow="md">
                 <HoverCard.Target>
-                  <Button size="compact-xs" variant="transparent" ml={2} mt={-3.5}>
+                  <Button
+                    size="compact-xs"
+                    variant="transparent"
+                    ml={2}
+                    mt={-3.5}
+                  >
                     ?
                   </Button>
                 </HoverCard.Target>
@@ -386,7 +456,7 @@ const COMPS_UNDER_30 = [
       ...DEFAULT_UNDER_30_COMPS,
       15: {
         witches: 1,
-        archers: 3
+        archers: 3,
       },
       20: {
         witches: 1,
@@ -394,29 +464,29 @@ const COMPS_UNDER_30 = [
       },
       25: {
         witches: 2,
-        archers: 1
+        archers: 1,
       },
       30: {
         witches: 2,
-        archers: 6
+        archers: 6,
       },
       35: {
         witches: 2,
         headhunters: 1,
-        archers: 5
+        archers: 5,
       },
       40: {
         witches: 3,
-        archers: 4
+        archers: 4,
       },
       45: {
         witches: 3,
         headhunters: 1,
-        archers: 3
+        archers: 3,
       },
       50: {
         witches: 4,
-        archers: 2
+        archers: 2,
       },
     },
   },
