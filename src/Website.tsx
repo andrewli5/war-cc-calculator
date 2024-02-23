@@ -5,82 +5,82 @@ import {
   Stack,
   Text,
   Title,
-  Radio,
   HoverCard,
   Center,
   Divider,
   Badge,
   Modal,
+  Checkbox,
+  Radio,
 } from "@mantine/core";
-import { useMediaQuery, useDisclosure } from "@mantine/hooks";
+import { useMediaQuery, useDisclosure, randomId } from "@mantine/hooks";
 import { useState } from "react";
 import { em } from "@mantine/core";
-import babyDragIcon from "/assets/troopIcons/babydrag.webp";
-import balloonIcon from "/assets/troopIcons/loon.webp";
-import dragIcon from "/assets/troopIcons/drag.webp";
-import edragIcon from "/assets/troopIcons/edrag.webp";
-import headhunterIcon from "/assets/troopIcons/hh.webp";
-import iceGolemIcon from "/assets/troopIcons/icegolem.webp";
-import lavaIcon from "/assets/troopIcons/lava.webp";
-import rocketLoonIcon from "/assets/troopIcons/rloon.webp";
-import superDragIcon from "/assets/troopIcons/superdrag.webp";
-import iceHoundIcon from "/assets/troopIcons/icehound.webp";
-import superMinionIcon from "/assets/troopIcons/sminion.webp";
-import valkIcon from "/assets/troopIcons/valk.webp";
-import witchIcon from "/assets/troopIcons/witch.webp";
-import wizardIcon from "/assets/troopIcons/wizard.webp";
-import archerIcon from "/assets/troopIcons/archer.webp";
+import {
+  TROOP_NAMES,
+  TROOP_TO_ICON,
+  DEFAULT_TROOP_AMTS,
+  DEFAULT_CASTLE_SIZES,
+  COMPS_OVER_30,
+  COMPS_UNDER_30,
+  CastleSizes,
+  TroopAmts,
+  TroopComp,
+  TroopDistribution,
+} from "./constants";
 
 export default function Website() {
-  const [clanCastleCounts, setClanCastleCounts] = useState<{
-    [id: string]: number;
-  }>({
-    "50": 0,
-    "45": 0,
-    "40": 0,
-    "35": 0,
-    "30": 0,
-    "25": 0,
-    "20": 0,
-    "15": 0,
-    "10": 0,
-  });
-  const [distribution, setDistribution] = useState<
-    Array<{ size: number; troops: TroopAmtsObj }>
-  >([]);
+  const [castles, setCastles] = useState<CastleSizes>(DEFAULT_CASTLE_SIZES);
+  const [distribution, setDistribution] = useState<TroopDistribution[]>([]);
   const [opened, { open, close }] = useDisclosure(false);
   const [totalSelected, setTotalSelected] = useState(0);
   const [totalSize, setTotalSize] = useState(0);
-  const [selectedComp, setSelectedComp] = useState("lavahh");
-  const [troopAmts, setTroopAmts] = useState({ ...DEFAULT_TROOP_AMTS });
+  const [comps, setComps] = useState<string[]>(["lavahh"]);
+  const [compsUnder30, setCompsUnder30] = useState<string[]>([]);
+  const [fillOption, setFillOption] = useState("default");
+  const [troopAmts, setTroopAmts] = useState(DEFAULT_TROOP_AMTS);
   const [resultsVisible, setResultsVisible] = useState(false);
   const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
 
+  function getCompByCastleSize(castleSize: number, numCastles: number) {
+    if (castleSize < 30 && numCastles > 0) {
+      if (fillOption === "default") {
+        return COMPS_UNDER_30.find((comp) => comp.value === "witch")!.troops;
+      } else {
+        const compId =
+          compsUnder30[Math.floor(Math.random() * compsUnder30.length)];
+        return COMPS_UNDER_30.find((comp) => comp.value === compId)!.troops;
+      }
+    } else {
+      const compId = comps[Math.floor(Math.random() * comps.length)];
+      console.log(compId);
+      return COMPS_OVER_30.find((comp) => comp.value === compId)!.troops;
+    }
+  }
+
   const calculateTroops = () => {
     const newTroopAmts = { ...DEFAULT_TROOP_AMTS };
-    const newDistribution = [] as Array<{ size: number; troops: TroopAmtsObj }>;
-    const comp =
-      COMPS_OVER_30.find((comp) => comp.value === selectedComp) ||
-      COMPS_UNDER_30.find((comp) => comp.value === selectedComp);
-    for (const size in clanCastleCounts) {
-      const clanCastleCount = clanCastleCounts[size];
-      for (let i = clanCastleCount; i > 0; i--) {
-        if (comp) {
-          const troopAmtsObj = comp.troops[
-            size as unknown as keyof typeof comp.troops
-          ] as TroopAmtsObj;
-          newDistribution.push({
-            size: size as unknown as number,
-            troops: troopAmtsObj,
-          });
+    const newDistribution = [] as TroopDistribution[];
 
-          for (const troopType in troopAmtsObj) {
-            newTroopAmts[troopType as keyof TroopAmtsObj] +=
-              troopAmtsObj[troopType as keyof TroopAmtsObj]!;
-          }
+    for (const castleSize in castles) {
+      const numCastles = castles[castleSize];
+      for (let i = numCastles; i > 0; i--) {
+        const troops = getCompByCastleSize(+castleSize, numCastles);
+        const troopAmts = troops[
+          castleSize as unknown as keyof typeof troops
+        ] as TroopAmts;
+        newDistribution.push({
+          size: +castleSize,
+          troops: troopAmts,
+        });
+
+        for (const troopType in troopAmts) {
+          newTroopAmts[troopType as keyof TroopAmts] +=
+            troopAmts[troopType as keyof TroopAmts]!;
         }
       }
     }
+
     setTroopAmts(newTroopAmts);
     setDistribution(newDistribution);
   };
@@ -105,12 +105,19 @@ export default function Website() {
       <Button
         size="xl"
         radius="md"
-        disabled={totalSelected === 0}
+        disabled={
+          totalSelected === 0 ||
+          (comps.length === 0 && compsUnder30.length === 0)
+        }
         fullWidth
         variant="gradient"
         onClick={() => handleSubmitClick()}
       >
-        {totalSelected === 0 ? "no ccs selected" : "calculate!"}
+        {totalSelected === 0
+          ? "no ccs selected"
+          : comps.length === 0 && compsUnder30.length === 0
+            ? "no comps selected"
+            : "calculate!"}
       </Button>
     );
   }
@@ -125,7 +132,7 @@ export default function Website() {
         </Card.Section>
         <Stack align="center">
           <Title order={4}>total selected: {totalSelected}</Title>
-          {Object.keys(clanCastleCounts)
+          {Object.keys(castles)
             .sort((a, b) => parseInt(b) - parseInt(a))
             .map((obj) => (
               <Group key={obj}>
@@ -134,12 +141,12 @@ export default function Website() {
                 </Title>
                 <Button
                   radius="md"
-                  color="darkred"
-                  disabled={clanCastleCounts[obj] === 0}
+                  color="dark.3"
+                  disabled={castles[obj] === 0}
                   onClick={() => {
-                    setClanCastleCounts({
-                      ...clanCastleCounts,
-                      [obj]: clanCastleCounts[obj] - 1,
+                    setCastles({
+                      ...castles,
+                      [obj]: castles[obj] - 1,
                     });
                     setTotalSelected(totalSelected - 1);
                     setTotalSize(totalSize - parseInt(obj));
@@ -147,15 +154,15 @@ export default function Website() {
                 >
                   -
                 </Button>
-                <Text>{clanCastleCounts[obj]}</Text>
+                <Text>{castles[obj]}</Text>
                 <Button
                   radius="md"
-                  color="darkgreen"
+                  variant="gradient"
                   disabled={totalSelected === 50}
                   onClick={() => {
-                    setClanCastleCounts({
-                      ...clanCastleCounts,
-                      [obj]: clanCastleCounts[obj] + 1,
+                    setCastles({
+                      ...castles,
+                      [obj]: castles[obj] + 1,
                     });
                     setTotalSelected(totalSelected + 1);
                     setTotalSize(totalSize + parseInt(obj));
@@ -181,11 +188,11 @@ export default function Website() {
         <Center>
           <Stack align="center" gap="xs">
             {TROOP_NAMES.map((troop) => {
-              if (troopAmts[troop.varName as keyof TroopAmtsObj] !== 0) {
+              if (troopAmts[troop.varName as keyof TroopAmts] !== 0) {
                 return (
                   <Text key={troop.varName} ta="left">
                     <Text span fw={600}>
-                      {troopAmts[troop.varName as keyof TroopAmtsObj] + " "}
+                      {troopAmts[troop.varName as keyof TroopAmts] + " "}
                     </Text>
                     {troop.displayName}
                   </Text>
@@ -208,19 +215,18 @@ export default function Website() {
     );
   }
 
-  function TroopAmtObjLabel(troops: TroopAmtsObj) {
+  function TroopAmtsLabel(troops: TroopAmts) {
     return (
       <Group gap="xs" align="center">
         {Object.keys(troops).map((troop) => {
-          console.log(troop);
           return (
             <div
               key={troop}
               style={{ display: "flex", flexDirection: "row", gap: "5px" }}
             >
-              {`${troops[troop as keyof TroopAmtsObj]}x `}
+              {`${troops[troop as keyof TroopAmts]}x `}
               <img
-                src={troopIconMap[troop as keyof typeof troopIconMap]}
+                src={TROOP_TO_ICON[troop as keyof typeof TROOP_TO_ICON]}
                 width="30"
                 height="30"
                 style={{
@@ -249,9 +255,9 @@ export default function Website() {
                 .sort((a, b) => b.size - a.size)
                 .map((cc) => {
                   return (
-                    <Group ta="center">
+                    <Group ta="center" key={randomId()}>
                       <Text fw={640} span>{`${cc.size}: `}</Text>
-                      {TroopAmtObjLabel(cc.troops)}
+                      {TroopAmtsLabel(cc.troops)}
                     </Group>
                   );
                 })}
@@ -274,8 +280,12 @@ export default function Website() {
             <SizesCard />
             <Stack w={350}>
               <CompositionCard
-                selectedComp={selectedComp}
-                setSelectedComp={setSelectedComp}
+                selectedComps={comps}
+                setSelectedComps={setComps}
+                selectedCompsUnder30={compsUnder30}
+                setSelectedCompsUnder30={setCompsUnder30}
+                fillOption={fillOption}
+                setFillOption={setFillOption}
               />
               <SubmitButton />
             </Stack>
@@ -292,8 +302,12 @@ export default function Website() {
           </Text>
           <SizesCard />
           <CompositionCard
-            selectedComp={selectedComp}
-            setSelectedComp={setSelectedComp}
+            selectedComps={comps}
+            setSelectedComps={setComps}
+            selectedCompsUnder30={compsUnder30}
+            setSelectedCompsUnder30={setCompsUnder30}
+            fillOption={fillOption}
+            setFillOption={setFillOption}
           />
           <SubmitButton />
           <Divider my="xs" w="100%" />
@@ -306,569 +320,123 @@ export default function Website() {
 }
 
 interface CompositionCardProps {
-  selectedComp: string;
-  setSelectedComp: (comp: string) => void;
+  selectedComps: string[];
+  setSelectedComps: (comp: string[]) => void;
+  selectedCompsUnder30: string[];
+  setSelectedCompsUnder30: (comp: string[]) => void;
+  fillOption: string;
+  setFillOption: (fill: string) => void;
 }
 
 function CompositionCard({
-  selectedComp,
-  setSelectedComp,
+  selectedComps,
+  setSelectedComps,
+  selectedCompsUnder30,
+  setSelectedCompsUnder30,
+  fillOption,
+  setFillOption,
 }: CompositionCardProps) {
+  function getCompLabel(comp: TroopComp) {
+    return (
+      <Group gap="xs">
+        {comp.meta && <Badge variant="gradient">meta</Badge>}
+        {comp.icons.map((icon) => (
+          <img
+            key={icon}
+            src={icon}
+            width="30"
+            height="30"
+            style={{
+              objectFit: "cover",
+              borderRadius: 5,
+              boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.2)",
+            }}
+          />
+        ))}
+        <Text size="sm">{comp.label}</Text>
+      </Group>
+    );
+  }
+
   return (
     <Card w={350} shadow="sm" padding="lg" radius="md" withBorder ta="center">
       <Card.Section withBorder p="md" mb="md">
         <Title order={3} ta="center">
           select composition
+          <HoverCard width={300} withArrow shadow="md" position="right">
+            <HoverCard.Target>
+              <Button size="compact-xs" variant="transparent" ml={2} mt={-2}>
+                ?
+              </Button>
+            </HoverCard.Target>
+            <HoverCard.Dropdown ta="center">
+              <Text size="md">
+                if multiple comps are selected, the calculator will randomize
+                them across castles.
+              </Text>
+            </HoverCard.Dropdown>
+          </HoverCard>
         </Title>
       </Card.Section>
+
       <Card shadow="sm" radius="md" padding="xs" withBorder ta="center">
-        <Radio.Group
-          name="compover30"
-          value={selectedComp}
-          onChange={setSelectedComp}
-          label={
-            <Text fw={600}>
-              for capacities 30+
-              <HoverCard width={300} withArrow shadow="md">
-                <HoverCard.Target>
-                  <Button
-                    size="compact-xs"
-                    variant="transparent"
-                    ml={2}
-                    mt={-3}
-                  >
-                    ?
-                  </Button>
-                </HoverCard.Target>
-                <HoverCard.Dropdown ta="center">
-                  <Text size="sm" fw={620} mb="xs">
-                    these comps aren't possible {" (or that good) "} for cc's 25
-                    and below.{" "}
-                    <Text>
-                      for these smaller capacities, the calculator will give you
-                      these better defaults:
-                    </Text>
-                  </Text>
-                  <Text size="xs">25: 2 witches, 1 archer</Text>
-                  <Text size="xs">20: 1 witch, 1 valkyrie</Text>
-                  <Text size="xs">15: 1 valkyrie, 1 wizard, 3 archers</Text>
-                  <Text size="xs">10: 1 valkyrie, 2 archers</Text>
-                </HoverCard.Dropdown>
-              </HoverCard>
-            </Text>
-          }
+        <Checkbox.Group
+          value={selectedComps}
           p="md"
+          label={<Text fw={600}>for capacities 30+</Text>}
+          onChange={setSelectedComps}
         >
           <Stack mt="md" mb="md" gap="xs">
             {COMPS_OVER_30.map((comp) => (
-              <Radio
-                key={comp.value + comp.label}
+              <Checkbox
+                key={randomId()}
                 value={comp.value}
-                label={
-                  <Group gap="xs">
-                    {comp.meta && <Badge variant="gradient">meta</Badge>}
-                    {comp.icons.map((icon) => (
-                      <img
-                        src={icon}
-                        width="30"
-                        height="30"
-                        style={{
-                          objectFit: "cover",
-                          borderRadius: 5,
-                          boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.2)",
-                        }}
-                      />
-                    ))}
-                    <Text size="sm">{comp.label}</Text>
-                  </Group>
-                }
+                label={getCompLabel(comp)}
               />
             ))}
           </Stack>
-        </Radio.Group>
-      </Card>
-      <Card shadow="sm" radius="md" padding="xs" withBorder ta="center" mt="md">
-        <Radio.Group
-          name="compallcaps"
-          value={selectedComp}
-          label={
-            <Text fw={600}>
-              for all capacities
-              <HoverCard width={300} withArrow shadow="md">
-                <HoverCard.Target>
-                  <Button
-                    size="compact-xs"
-                    variant="transparent"
-                    ml={2}
-                    mt={-3.5}
-                  >
-                    ?
-                  </Button>
-                </HoverCard.Target>
-                <HoverCard.Dropdown ta="center">
-                  <Text size="sm" fw={620} mb="xs">
-                    these comps are usable for all capacities.
-                    <Text>
-                      the calculator won't fill with any other options.
-                    </Text>
+        </Checkbox.Group>
+        <Center>
+          <Radio.Group
+            name="fill-options"
+            label={<Text fw={600}>for smaller capacities</Text>}
+            value={fillOption}
+            onChange={setFillOption}
+          >
+            <Stack gap="xs" mt="xs">
+              <Radio
+                label={
+                  <Text size="sm" ta="left">
+                    {"fill smaller castles with best defaults"}
                   </Text>
-                </HoverCard.Dropdown>
-              </HoverCard>
-            </Text>
-          }
-          p="md"
-          onChange={setSelectedComp}
-        >
-          <Stack mt="md" gap="xs">
-            {COMPS_UNDER_30.map((comp) => (
-              <Radio
-                key={comp.value + comp.label}
-                value={comp.value}
-                label={
-                  <Group gap="xs">
-                    {comp.meta && <Badge variant="gradient">meta</Badge>}
-                    {comp.icons.map((icon) => (
-                      <img
-                        src={icon}
-                        width="30"
-                        height="30"
-                        style={{
-                          objectFit: "cover",
-                          borderRadius: 5,
-                          boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.2)",
-                        }}
-                      />
-                    ))}
-                    <Text size="sm">{comp.label}</Text>
-                  </Group>
                 }
+                value="default"
               />
-            ))}
-          </Stack>
-        </Radio.Group>
+              <Radio
+                label={<Text size="sm">customize fill...</Text>}
+                value="custom"
+              />
+            </Stack>
+          </Radio.Group>
+        </Center>
+        {fillOption === "custom" && (
+          <Checkbox.Group
+            value={selectedCompsUnder30}
+            p="md"
+            onChange={setSelectedCompsUnder30}
+          >
+            <Stack gap="xs">
+              {COMPS_UNDER_30.map((comp) => (
+                <Checkbox
+                  key={randomId()}
+                  value={comp.value}
+                  label={getCompLabel(comp)}
+                />
+              ))}
+            </Stack>
+          </Checkbox.Group>
+        )}
       </Card>
     </Card>
   );
 }
-
-const troopIconMap = {
-  archers: archerIcon,
-  headhunters: headhunterIcon,
-  lavas: lavaIcon,
-  icegolems: iceGolemIcon,
-  superminions: superMinionIcon,
-  rocketloons: rocketLoonIcon,
-  witches: witchIcon,
-  valks: valkIcon,
-  wizards: wizardIcon,
-  babydrags: babyDragIcon,
-  drags: dragIcon,
-  balloons: balloonIcon,
-  superdrags: superDragIcon,
-  superlavas: iceHoundIcon,
-  edrags: edragIcon,
-};
-
-const DEFAULT_UNDER_30_COMPS = {
-  25: {
-    witches: 2,
-    archers: 1,
-  },
-  20: {
-    witches: 1,
-    valks: 1,
-  },
-  15: {
-    valks: 1,
-    wizards: 1,
-    archers: 3,
-  },
-  10: {
-    valks: 1,
-    archers: 2,
-  },
-};
-
-const COMPS_UNDER_30 = [
-  {
-    value: "archer",
-    label: "mass archers",
-    meta: false,
-    icons: [archerIcon],
-    troops: {
-      10: {
-        archers: 10,
-      },
-      15: {
-        archers: 15,
-      },
-      20: {
-        archers: 20,
-      },
-      25: {
-        archers: 25,
-      },
-      30: {
-        archers: 30,
-      },
-      35: {
-        archers: 35,
-      },
-      40: {
-        archers: 40,
-      },
-      45: {
-        archers: 45,
-      },
-      50: {
-        archers: 50,
-      },
-    },
-  },
-  {
-    value: "witch",
-    label: "mass witch",
-    icons: [witchIcon],
-    meta: false,
-    troops: {
-      ...DEFAULT_UNDER_30_COMPS,
-      15: {
-        witches: 1,
-        archers: 3,
-      },
-      20: {
-        witches: 1,
-        valks: 1,
-      },
-      25: {
-        witches: 2,
-        archers: 1,
-      },
-      30: {
-        witches: 2,
-        archers: 6,
-      },
-      35: {
-        witches: 2,
-        headhunters: 1,
-        archers: 5,
-      },
-      40: {
-        witches: 3,
-        archers: 4,
-      },
-      45: {
-        witches: 3,
-        headhunters: 1,
-        archers: 3,
-      },
-      50: {
-        witches: 4,
-        archers: 2,
-      },
-    },
-  },
-  {
-    value: "drag",
-    icons: [dragIcon, balloonIcon],
-    label: "drag + loon",
-    meta: false,
-    troops: {
-      10: {
-        balloons: 2,
-      },
-      15: {
-        balloons: 3,
-      },
-      20: {
-        drags: 1,
-      },
-      25: {
-        drags: 1,
-        balloons: 1,
-      },
-      30: {
-        drags: 1,
-        balloons: 2,
-      },
-      35: {
-        drags: 1,
-        balloons: 3,
-      },
-      40: {
-        drags: 2,
-      },
-      45: {
-        drags: 2,
-        balloons: 1,
-      },
-      50: {
-        drags: 2,
-        balloons: 2,
-      },
-    },
-  },
-];
-
-const COMPS_OVER_30 = [
-  {
-    value: "lavahh",
-    icons: [lavaIcon, headhunterIcon],
-    label: "lava + hh",
-    meta: true,
-    troops: {
-      ...DEFAULT_UNDER_30_COMPS,
-      30: {
-        lavas: 1,
-      },
-      35: {
-        lavas: 1,
-        archers: 5,
-      },
-      40: {
-        lavas: 1,
-        headhunters: 1,
-        archers: 4,
-      },
-      45: {
-        lavas: 1,
-        headhunters: 2,
-        archers: 3,
-      },
-      50: {
-        lavas: 1,
-        headhunters: 3,
-        archers: 2,
-      },
-    },
-  },
-  {
-    value: "lavarl",
-    icons: [lavaIcon, rocketLoonIcon],
-    label: "lava + rloon",
-    meta: true,
-    troops: {
-      ...DEFAULT_UNDER_30_COMPS,
-      30: {
-        lavas: 1,
-      },
-      35: {
-        lavas: 1,
-        archers: 5,
-      },
-      40: {
-        lavas: 1,
-        rocketloons: 1,
-        archers: 2,
-      },
-      45: {
-        lavas: 1,
-        rocketloons: 1,
-        archers: 7,
-      },
-      50: {
-        lavas: 1,
-        rocketloons: 2,
-        archers: 4,
-      },
-    },
-  },
-  {
-    value: "ig",
-    icons: [iceGolemIcon],
-    label: "mass ig",
-    meta: true,
-    troops: {
-      ...DEFAULT_UNDER_30_COMPS,
-      30: {
-        icegolems: 2,
-      },
-      35: {
-        icegolems: 2,
-        archers: 5,
-      },
-      40: {
-        icegolems: 2,
-        headhunters: 1,
-        archers: 4,
-      },
-      45: {
-        icegolems: 3,
-      },
-      50: {
-        icegolems: 3,
-        archers: 5,
-      },
-    },
-  },
-  {
-    value: "igrl",
-    icons: [iceGolemIcon, rocketLoonIcon],
-    label: "ig + rloon",
-    meta: true,
-    troops: {
-      ...DEFAULT_UNDER_30_COMPS,
-      30: {
-        icegolems: 1,
-        rocketloons: 1,
-        headhunters: 1,
-        archers: 1,
-      },
-      35: {
-        icegolems: 1,
-        rocketloons: 2,
-        archers: 4,
-      },
-      40: {
-        icegolems: 1,
-        rocketloons: 2,
-        headhunters: 1,
-        archers: 3,
-      },
-      45: {
-        icegolems: 1,
-        rocketloons: 2,
-        headhunters: 2,
-        archers: 2,
-      },
-      50: {
-        icegolems: 2,
-        rocketloons: 2,
-        archers: 4,
-      },
-    },
-  },
-  {
-    value: "smhh",
-    icons: [superMinionIcon, headhunterIcon],
-    label: "sm + hh",
-    meta: true,
-    troops: {
-      ...DEFAULT_UNDER_30_COMPS,
-      30: {
-        superminions: 2,
-        headhunters: 1,
-      },
-      35: {
-        superminions: 2,
-        headhunters: 1,
-        archers: 5,
-      },
-      40: {
-        superminions: 3,
-        archers: 4,
-      },
-      45: {
-        superminions: 3,
-        headhunters: 1,
-        archers: 3,
-      },
-      50: {
-        superminions: 3,
-        headhunters: 2,
-        archers: 2,
-      },
-    },
-  },
-  {
-    value: "smrl",
-    icons: [superMinionIcon, rocketLoonIcon],
-    label: "sm/rloon",
-    meta: true,
-    troops: {
-      ...DEFAULT_UNDER_30_COMPS,
-      30: {
-        superminions: 1,
-        rocketloons: 2,
-        archers: 2,
-      },
-      35: {
-        superminions: 1,
-        rocketloons: 2,
-        headhunters: 1,
-        archers: 1,
-      },
-      40: {
-        superminions: 2,
-        rocketloons: 2,
-      },
-      45: {
-        superminions: 2,
-        rocketloons: 2,
-        archers: 5,
-      },
-      50: {
-        superminions: 2,
-        rocketloons: 2,
-        headhunters: 1,
-        archers: 4,
-      },
-    },
-  },
-  {
-    value: "edrag",
-    icons: [edragIcon, balloonIcon],
-    label: "edrag + loon",
-    meta: false,
-    troops: {
-      ...DEFAULT_UNDER_30_COMPS,
-      30: {
-        edrags: 1,
-      },
-      35: {
-        edrags: 1,
-        balloons: 1,
-      },
-      40: {
-        edrags: 1,
-        balloons: 2,
-      },
-      45: {
-        edrags: 1,
-        balloons: 3,
-      },
-      50: {
-        edrags: 1,
-        balloons: 4,
-      },
-    },
-  },
-];
-
-const DEFAULT_TROOP_AMTS = {
-  archers: 0,
-  headhunters: 0,
-  lavas: 0,
-  icegolems: 0,
-  superminions: 0,
-  rocketloons: 0,
-  witches: 0,
-  valks: 0,
-  wizards: 0,
-  babydrags: 0,
-  drags: 0,
-  balloons: 0,
-  superdrags: 0,
-  superlavas: 0,
-  edrags: 0,
-};
-
-const TROOP_NAMES = [
-  { varName: "superdrags", displayName: "super dragons" },
-  { varName: "superlavas", displayName: "ice hounds" },
-  { varName: "edrags", displayName: "electro dragons" },
-  { varName: "lavas", displayName: "lava hounds" },
-  { varName: "drags", displayName: "dragons" },
-  { varName: "icegolems", displayName: "ice golems" },
-  { varName: "superminions", displayName: "super minions" },
-  { varName: "witches", displayName: "witches" },
-  { varName: "babydrags", displayName: "baby dragons" },
-  { varName: "rocketloons", displayName: "rocket loons" },
-  { varName: "valks", displayName: "valkyries" },
-  { varName: "headhunters", displayName: "headhunters" },
-  { varName: "balloons", displayName: "balloons" },
-  { varName: "wizards", displayName: "wizards" },
-  { varName: "archers", displayName: "archers" },
-];
-
-type TroopAmtsObj = typeof DEFAULT_TROOP_AMTS;
