@@ -15,6 +15,21 @@ import {
 import { useMediaQuery, useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
 import { em } from "@mantine/core";
+import babyDragIcon from "/assets/troopIcons/babydrag.webp";
+import balloonIcon from "/assets/troopIcons/loon.webp";
+import dragIcon from "/assets/troopIcons/drag.webp";
+import edragIcon from "/assets/troopIcons/edrag.webp";
+import headhunterIcon from "/assets/troopIcons/hh.webp";
+import iceGolemIcon from "/assets/troopIcons/icegolem.webp";
+import lavaIcon from "/assets/troopIcons/lava.webp";
+import rocketLoonIcon from "/assets/troopIcons/rloon.webp";
+import superDragIcon from "/assets/troopIcons/superdrag.webp";
+import iceHoundIcon from "/assets/troopIcons/icehound.webp";
+import superMinionIcon from "/assets/troopIcons/sminion.webp";
+import valkIcon from "/assets/troopIcons/valk.webp";
+import witchIcon from "/assets/troopIcons/witch.webp";
+import wizardIcon from "/assets/troopIcons/wizard.webp";
+import archerIcon from "/assets/troopIcons/archer.webp";
 
 export default function Website() {
   const [clanCastleCounts, setClanCastleCounts] = useState<{
@@ -36,7 +51,7 @@ export default function Website() {
   const [opened, { open, close }] = useDisclosure(false);
   const [totalSelected, setTotalSelected] = useState(0);
   const [totalSize, setTotalSize] = useState(0);
-  const [selectedComp, setSelectedComp] = useState("lava");
+  const [selectedComp, setSelectedComp] = useState("lavahh");
   const [troopAmts, setTroopAmts] = useState({ ...DEFAULT_TROOP_AMTS });
   const [resultsVisible, setResultsVisible] = useState(false);
   const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
@@ -193,19 +208,32 @@ export default function Website() {
     );
   }
 
-  function troopAmtsObjToString(troops: TroopAmtsObj) {
-    let str = "";
-    for (const troop in troops) {
-      const amt = troops[troop as keyof TroopAmtsObj];
-      if (amt !== 0) {
-        if (amt === 1) {
-          str += `${troops[troop as keyof TroopAmtsObj]} ${troop.slice(0, -1)}, `;
-        } else {
-          str += `${troops[troop as keyof TroopAmtsObj]} ${troop}, `;
-        }
-      }
-    }
-    return str.slice(0, -2);
+  function TroopAmtObjLabel(troops: TroopAmtsObj) {
+    return (
+      <Group gap="xs" align="center">
+        {Object.keys(troops).map((troop) => {
+          console.log(troop);
+          return (
+            <div
+              key={troop}
+              style={{ display: "flex", flexDirection: "row", gap: "5px" }}
+            >
+              {`${troops[troop as keyof TroopAmtsObj]}x `}
+              <img
+                src={troopIconMap[troop as keyof typeof troopIconMap]}
+                width="30"
+                height="30"
+                style={{
+                  objectFit: "cover",
+                  borderRadius: 5,
+                  boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.2)",
+                }}
+              />
+            </div>
+          );
+        })}
+      </Group>
+    );
   }
 
   function DistributionModal() {
@@ -216,14 +244,18 @@ export default function Website() {
             {`total capacity: ${totalSize}`}
           </Text>
           <Card shadow="sm" padding="md" radius="md" withBorder mb="sm">
-            {distribution.sort((a, b) => b.size - a.size).map((cc) => {
-              return (
-                <Text size="sm" ta="left">
-                  <Text fw={640} span>{`${cc.size}: `}</Text>
-                  {`${troopAmtsObjToString(cc.troops)}`}
-                </Text>
-              );
-            })}
+            <Stack gap="xs">
+              {distribution
+                .sort((a, b) => b.size - a.size)
+                .map((cc) => {
+                  return (
+                    <Group ta="center">
+                      <Text fw={640} span>{`${cc.size}: `}</Text>
+                      {TroopAmtObjLabel(cc.troops)}
+                    </Group>
+                  );
+                })}
+            </Stack>
           </Card>
         </Stack>
       </Modal>
@@ -282,7 +314,6 @@ function CompositionCard({
   selectedComp,
   setSelectedComp,
 }: CompositionCardProps) {
-  console.log("selectedComp", selectedComp);
   return (
     <Card w={350} shadow="sm" padding="lg" radius="md" withBorder ta="center">
       <Card.Section withBorder p="md" mb="md">
@@ -333,7 +364,24 @@ function CompositionCard({
               <Radio
                 key={comp.value + comp.label}
                 value={comp.value}
-                label={comp.label}
+                label={
+                  <Group gap="xs">
+                    {comp.meta && <Badge variant="gradient">meta</Badge>}
+                    {comp.icons.map((icon) => (
+                      <img
+                        src={icon}
+                        width="30"
+                        height="30"
+                        style={{
+                          objectFit: "cover",
+                          borderRadius: 5,
+                          boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.2)",
+                        }}
+                      />
+                    ))}
+                    <Text size="sm">{comp.label}</Text>
+                  </Group>
+                }
               />
             ))}
           </Stack>
@@ -376,7 +424,24 @@ function CompositionCard({
               <Radio
                 key={comp.value + comp.label}
                 value={comp.value}
-                label={comp.label}
+                label={
+                  <Group gap="xs">
+                    {comp.meta && <Badge variant="gradient">meta</Badge>}
+                    {comp.icons.map((icon) => (
+                      <img
+                        src={icon}
+                        width="30"
+                        height="30"
+                        style={{
+                          objectFit: "cover",
+                          borderRadius: 5,
+                          boxShadow: "2px 2px 4px rgba(0, 0, 0, 0.2)",
+                        }}
+                      />
+                    ))}
+                    <Text size="sm">{comp.label}</Text>
+                  </Group>
+                }
               />
             ))}
           </Stack>
@@ -386,14 +451,23 @@ function CompositionCard({
   );
 }
 
-const MetaLabel = (label: string) => (
-  <Text size="sm">
-    <Badge variant="gradient" mr={3}>
-      meta
-    </Badge>{" "}
-    {label}
-  </Text>
-);
+const troopIconMap = {
+  archers: archerIcon,
+  headhunters: headhunterIcon,
+  lavas: lavaIcon,
+  icegolems: iceGolemIcon,
+  superminions: superMinionIcon,
+  rocketloons: rocketLoonIcon,
+  witches: witchIcon,
+  valks: valkIcon,
+  wizards: wizardIcon,
+  babydrags: babyDragIcon,
+  drags: dragIcon,
+  balloons: balloonIcon,
+  superdrags: superDragIcon,
+  superlavas: iceHoundIcon,
+  edrags: edragIcon,
+};
 
 const DEFAULT_UNDER_30_COMPS = {
   25: {
@@ -419,6 +493,8 @@ const COMPS_UNDER_30 = [
   {
     value: "archer",
     label: "mass archers",
+    meta: false,
+    icons: [archerIcon],
     troops: {
       10: {
         archers: 10,
@@ -451,7 +527,9 @@ const COMPS_UNDER_30 = [
   },
   {
     value: "witch",
-    label: "mass witches",
+    label: "mass witch",
+    icons: [witchIcon],
+    meta: false,
     troops: {
       ...DEFAULT_UNDER_30_COMPS,
       15: {
@@ -492,7 +570,9 @@ const COMPS_UNDER_30 = [
   },
   {
     value: "drag",
-    label: "dragon + loon",
+    icons: [dragIcon, balloonIcon],
+    label: "drag + loon",
+    meta: false,
     troops: {
       10: {
         balloons: 2,
@@ -532,8 +612,10 @@ const COMPS_UNDER_30 = [
 
 const COMPS_OVER_30 = [
   {
-    value: "lava",
-    label: MetaLabel("lava + headhunter"),
+    value: "lavahh",
+    icons: [lavaIcon, headhunterIcon],
+    label: "lava + hh",
+    meta: true,
     troops: {
       ...DEFAULT_UNDER_30_COMPS,
       30: {
@@ -562,7 +644,9 @@ const COMPS_OVER_30 = [
   },
   {
     value: "lavarl",
-    label: MetaLabel("lava + rloon"),
+    icons: [lavaIcon, rocketLoonIcon],
+    label: "lava + rloon",
+    meta: true,
     troops: {
       ...DEFAULT_UNDER_30_COMPS,
       30: {
@@ -591,7 +675,9 @@ const COMPS_OVER_30 = [
   },
   {
     value: "ig",
-    label: MetaLabel("mass ice golem"),
+    icons: [iceGolemIcon],
+    label: "mass ig",
+    meta: true,
     troops: {
       ...DEFAULT_UNDER_30_COMPS,
       30: {
@@ -617,7 +703,9 @@ const COMPS_OVER_30 = [
   },
   {
     value: "igrl",
-    label: MetaLabel("ice golem + rloon"),
+    icons: [iceGolemIcon, rocketLoonIcon],
+    label: "ig + rloon",
+    meta: true,
     troops: {
       ...DEFAULT_UNDER_30_COMPS,
       30: {
@@ -652,7 +740,9 @@ const COMPS_OVER_30 = [
   },
   {
     value: "smhh",
-    label: MetaLabel("sminion + headhunter"),
+    icons: [superMinionIcon, headhunterIcon],
+    label: "sm + hh",
+    meta: true,
     troops: {
       ...DEFAULT_UNDER_30_COMPS,
       30: {
@@ -682,7 +772,9 @@ const COMPS_OVER_30 = [
   },
   {
     value: "smrl",
-    label: MetaLabel("sminion + rloon"),
+    icons: [superMinionIcon, rocketLoonIcon],
+    label: "sm/rloon",
+    meta: true,
     troops: {
       ...DEFAULT_UNDER_30_COMPS,
       30: {
@@ -715,7 +807,9 @@ const COMPS_OVER_30 = [
   },
   {
     value: "edrag",
+    icons: [edragIcon, balloonIcon],
     label: "edrag + loon",
+    meta: false,
     troops: {
       ...DEFAULT_UNDER_30_COMPS,
       30: {
