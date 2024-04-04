@@ -155,6 +155,69 @@ const COMPS_UNDER_30 = [
 
 const COMPS_OVER_30 = [
   {
+    value: "ig",
+    icons: [iceGolemIcon],
+    label: "mass ig",
+    meta: true,
+    troops: {
+      30: {
+        icegolems: 2,
+      },
+      35: {
+        icegolems: 2,
+        archers: 5,
+      },
+      40: {
+        icegolems: 2,
+        headhunters: 1,
+        archers: 4,
+      },
+      45: {
+        icegolems: 3,
+      },
+      50: {
+        icegolems: 3,
+        archers: 5,
+      },
+    },
+  },
+  {
+    value: "igwitch",
+    icons: [iceGolemIcon, witchIcon],
+    label: "ig + witch",
+    meta: true,
+    troops: {
+      30: {
+        icegolems: 1,
+        witches: 1,
+        archers: 3,
+      },
+      35: {
+        icegolems: 1,
+        witches: 1,
+        headhunters: 1,
+        archers: 2,
+      },
+      40: {
+        icegolems: 1,
+        witches: 1,
+        headhunters: 2,
+        archers: 1,
+      },
+      45: {
+        icegolems: 1,
+        witches: 2,
+        archers: 6,
+      },
+      50: {
+        icegolems: 1,
+        witches: 2,
+        headhunters: 1,
+        archers: 5,
+      },
+    },
+  },
+  {
     value: "lavahh",
     icons: [lavaIcon, headhunterIcon],
     label: "lava + hh",
@@ -184,6 +247,7 @@ const COMPS_OVER_30 = [
       },
     },
   },
+  /*
   {
     value: "lavarl",
     icons: [lavaIcon, rocketLoonIcon],
@@ -213,34 +277,8 @@ const COMPS_OVER_30 = [
         archers: 4,
       },
     },
-  },
-  {
-    value: "ig",
-    icons: [iceGolemIcon],
-    label: "mass ig",
-    meta: true,
-    troops: {
-      30: {
-        icegolems: 2,
-      },
-      35: {
-        icegolems: 2,
-        archers: 5,
-      },
-      40: {
-        icegolems: 2,
-        headhunters: 1,
-        archers: 4,
-      },
-      45: {
-        icegolems: 3,
-      },
-      50: {
-        icegolems: 3,
-        archers: 5,
-      },
-    },
-  },
+  },*/
+  
   {
     value: "igrl",
     icons: [iceGolemIcon, rocketLoonIcon],

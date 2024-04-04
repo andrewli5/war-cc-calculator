@@ -35,7 +35,7 @@ export default function Website() {
   const [opened, { open, close }] = useDisclosure(false);
   const [totalSelected, setTotalSelected] = useState(0);
   const [totalSize, setTotalSize] = useState(0);
-  const [comps, setComps] = useState<string[]>(["lavahh"]);
+  const [comps, setComps] = useState<string[]>(["ig"]);
   const [compsUnder30, setCompsUnder30] = useState<string[]>([]);
   const [fillOption, setFillOption] = useState("default");
   const [troopAmts, setTroopAmts] = useState(DEFAULT_TROOP_AMTS);
