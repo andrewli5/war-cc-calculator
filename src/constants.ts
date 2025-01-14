@@ -179,6 +179,11 @@ const COMPS_OVER_30 = [
         icegolems: 3,
         archers: 5,
       },
+      55: {
+        icegolems: 3,
+        headhunters: 1,
+        archers: 4,
+      },
     },
   },
   {
@@ -215,35 +220,10 @@ const COMPS_OVER_30 = [
         headhunters: 1,
         archers: 5,
       },
-    },
-  },
-  {
-    value: "lavahh",
-    icons: [lavaIcon, headhunterIcon],
-    label: "lava + hh",
-    meta: true,
-    troops: {
-      30: {
-        lavas: 1,
-      },
-      35: {
-        lavas: 1,
-        archers: 5,
-      },
-      40: {
-        lavas: 1,
-        headhunters: 1,
-        archers: 4,
-      },
-      45: {
-        lavas: 1,
-        headhunters: 2,
-        archers: 3,
-      },
-      50: {
-        lavas: 1,
-        headhunters: 3,
-        archers: 2,
+      55: {
+        icegolems: 2,
+        witches: 2,
+        archers: 1,
       },
     },
   },
@@ -276,9 +256,13 @@ const COMPS_OVER_30 = [
         rocketloons: 2,
         archers: 4,
       },
+      55: {
+        lavas: 1,
+        rocketloons: 2,
+        archers: 9,
+      },
     },
   },*/
-  
   {
     value: "igrl",
     icons: [iceGolemIcon, rocketLoonIcon],
@@ -313,6 +297,11 @@ const COMPS_OVER_30 = [
         rocketloons: 2,
         archers: 4,
       },
+      55: {
+        icegolems: 2,
+        rocketloons: 3,
+        archers: 1,
+      },
     },
   },
   {
@@ -343,6 +332,11 @@ const COMPS_OVER_30 = [
         superminions: 3,
         headhunters: 2,
         archers: 2,
+      },
+      55: {
+        superminions: 3,
+        headhunters: 3,
+        archers: 1,
       },
     },
   },
@@ -378,6 +372,46 @@ const COMPS_OVER_30 = [
         headhunters: 1,
         archers: 4,
       },
+      55: {
+        superminions: 3,
+        rocketloons: 2,
+        archers: 3,
+      },
+    },
+  },
+  {
+    value: "lavahh",
+    icons: [lavaIcon, headhunterIcon],
+    label: "lava + hh",
+    meta: false,
+    troops: {
+      30: {
+        lavas: 1,
+      },
+      35: {
+        lavas: 1,
+        archers: 5,
+      },
+      40: {
+        lavas: 1,
+        headhunters: 1,
+        archers: 4,
+      },
+      45: {
+        lavas: 1,
+        headhunters: 2,
+        archers: 3,
+      },
+      50: {
+        lavas: 1,
+        headhunters: 3,
+        archers: 2,
+      },
+      55: {
+        lavas: 1,
+        headhunters: 3,
+        archers: 7,
+      },
     },
   },
   {
@@ -405,6 +439,10 @@ const COMPS_OVER_30 = [
         edrags: 1,
         balloons: 4,
       },
+      55: {
+        edrags: 1,
+        balloons: 5,
+      },
     },
   },
   {
@@ -431,6 +469,10 @@ const COMPS_OVER_30 = [
       50: {
         drags: 2,
         balloons: 2,
+      },
+      55: {
+        drags: 2,
+        balloons: 3,
       },
     },
   },
@@ -462,6 +504,11 @@ const COMPS_OVER_30 = [
         witches: 4,
         archers: 2,
       },
+      55: {
+        witches: 4,
+        headhunters: 1,
+        archers: 1,
+      },
     },
   },
   {
@@ -484,6 +531,9 @@ const COMPS_OVER_30 = [
       },
       50: {
         archers: 50,
+      },
+      55: {
+        archers: 55,
       },
     },
   },
@@ -508,6 +558,7 @@ const DEFAULT_TROOP_AMTS = {
 };
 
 const DEFAULT_CASTLE_SIZES = {
+  "55": 0,
   "50": 0,
   "45": 0,
   "40": 0,
