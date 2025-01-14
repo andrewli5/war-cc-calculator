@@ -1,4 +1,5 @@
-import { createTheme } from '@mantine/core';
+import { createTheme } from "@mantine/core";
 
 export const theme = createTheme({
+  cursorType: "pointer",
 });
