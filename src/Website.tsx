@@ -362,7 +362,7 @@ function CompositionCard({
     <Card w={350} shadow="sm" padding="lg" radius="md" withBorder ta="center">
       <Card.Section withBorder p="md" mb="md">
         <Title order={3} ta="center">
-          select composition
+          select compositions
           <HoverCard width={300} withArrow shadow="md" position="right">
             <HoverCard.Target>
               <Button size="compact-xs" variant="transparent" ml={2} mt={-2}>
